@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Job Analyzer | Fake Job Detector{% endblock %}
+{% block content %}
+<section class="page-wrap app-page analyzer-page"><div class="page-heading"><div><div class="section-kicker">JOB ANALYZER</div><h1>Check the details.</h1><p>Paste a complete job description to review its signals.</p></div></div><div class="analyzer-grid"><form id="job-analyzer-form" method="post" class="analyzer-form"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label for="job-description" class="field-title">Job description</label><p class="field-help">Include the role, requirements, compensation, and how the employer wants to be contacted.</p><textarea id="job-description" name="job_description" required minlength="10" placeholder="Paste the complete job description here…">{{ user_input }}</textarea><div class="form-footer"><span><i data-lucide="lock-keyhole"></i> Saved privately to your account</span><button class="button button-dark" type="submit"><i data-lucide="scan-search"></i> Analyze job</button></div></form>
+{% if result %}<aside class="analysis-result" aria-live="polite"><div class="result-topline"><span class="section-kicker">ANALYSIS RESULT</span><span class="result-pill {% if result.prediction == 'Potentially Fake Job' %}pill-fake{% else %}pill-genuine{% endif %}">{{ result.prediction }}</span></div><h2>{{ result.prediction }}</h2><div class="score-row"><div><span class="score-label">Risk indicator</span><strong>{{ result.risk_score }}<span>%</span></strong></div><span class="score-context">Lower is a<br>weaker signal</span></div><div class="risk-track"><span style="width: {{ result.risk_score }}%"></span></div><p class="score-disclaimer">A screening indicator combining the model score and keyword signals. It is not a calibrated probability or a guarantee.</p><div class="result-divider"></div><div class="flag-heading"><i data-lucide="flag-triangle-right"></i><h3>Red flags</h3><span>{{ result.red_flags|length }}</span></div>{% if result.red_flags %}<ul class="flag-list">{% for flag in result.red_flags %}<li>{{ flag }}</li>{% endfor %}</ul>{% else %}<p class="no-flags"><i data-lucide="circle-check"></i> No common warning phrases detected.</p>{% endif %}<div class="recommendation"><span><i data-lucide="lightbulb"></i> SAFETY RECOMMENDATION</span><p>{{ result.recommendation }}</p></div></aside>
+{% else %}<aside class="analyzer-aside"><span class="aside-icon"><i data-lucide="shield-check"></i></span><div class="section-kicker">A HELPFUL SECOND LOOK</div><h2>Look for patterns, not promises.</h2><p>The model looks at the language of a posting. We also check for common signals like upfront fees, unusual contact methods, and requests for sensitive information.</p><div class="aside-note"><i data-lucide="info"></i><span>Use the result as a starting point. Independently verify employers and never send money to secure a job.</span></div></aside>{% endif %}</div></section>
+<script>
+	const analyzerForm = document.getElementById('job-analyzer-form');
+	const jobDescription = analyzerForm.querySelector('#job-description');
+	const analyzeButton = analyzerForm.querySelector('button[type="submit"]');
+
+	jobDescription.addEventListener('keydown', (event) => {
+		if (event.key !== 'Enter' || event.shiftKey || event.isComposing || event.keyCode === 229) return;
+		event.preventDefault();
+		if (!analyzerForm.dataset.submitting) analyzerForm.requestSubmit(analyzeButton);
+	});
+
+	analyzerForm.addEventListener('submit', (event) => {
+		if (analyzerForm.dataset.submitting) {
+			event.preventDefault();
+			return;
+		}
+		analyzerForm.dataset.submitting = 'true';
+		analyzerForm.setAttribute('aria-busy', 'true');
+		analyzeButton.disabled = true;
+	});
+</script>
+{% endblock %}

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f5f7f1">
+    <title>{% block title %}Fake Job Detector{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="{{ url_for('home') }}" aria-label="Fake Job Detector home">
+            <span class="brand-mark"><i data-lucide="shield-check"></i></span>
+            <span>Fake Job<span class="brand-light"> Detector</span></span>
+        </a>
+        <nav class="main-nav" aria-label="Main navigation">
+            {% if g.user %}
+                <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">Dashboard</a>
+                <a href="{{ url_for('analyze') }}" class="{% if request.endpoint == 'analyze' %}active{% endif %}">Job Analyzer</a>
+                <a href="{{ url_for('history') }}" class="{% if request.endpoint == 'history' %}active{% endif %}">History</a>
+                <a href="{{ url_for('profile') }}" class="{% if request.endpoint == 'profile' %}active{% endif %}">Profile</a>
+                <form class="nav-logout" method="post" action="{{ url_for('logout') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <button class="nav-link-button" type="submit">Log out</button>
+                </form>
+            {% else %}
+                <a href="{{ url_for('home') }}#about">About</a>
+                <a href="{{ url_for('login') }}">Log in</a>
+                <a class="button button-small button-dark" href="{{ url_for('signup') }}">Create account</a>
+            {% endif %}
+        </nav>
+    </header>
+    <main>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-stack" role="status">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="site-footer">
+        <a class="brand footer-brand" href="{{ url_for('home') }}">
+            <span class="brand-mark"><i data-lucide="shield-check"></i></span>
+            <span>Fake Job Detector</span>
+        </a>
+        <span>Built to help you make more informed job decisions.</span>
+    </footer>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>if (window.lucide) window.lucide.createIcons();</script>
+</body>
+</html>

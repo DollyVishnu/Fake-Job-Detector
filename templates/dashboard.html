@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | Fake Job Detector{% endblock %}
+{% block content %}
+<section class="page-wrap app-page">
+    <div class="page-heading dashboard-heading">
+        <div><div class="section-kicker">YOUR WORKSPACE</div><h1>Welcome, {{ g.user.name }}.</h1><p>Here’s a clear view of your recent job checks.</p></div>
+        <a class="button button-lime" href="{{ url_for('analyze') }}"><i data-lucide="scan-search"></i> Check a new job</a>
+    </div>
+    <div class="stats-grid">
+        <article class="stat-card stat-total"><span class="stat-icon"><i data-lucide="files"></i></span><span class="stat-label">Total jobs checked</span><strong>{{ stats.total }}</strong><small>Across your account</small></article>
+        <article class="stat-card stat-fake"><span class="stat-icon"><i data-lucide="triangle-alert"></i></span><span class="stat-label">Potentially fake</span><strong>{{ stats.fake }}</strong><small>Flagged for closer review</small></article>
+        <article class="stat-card stat-genuine"><span class="stat-icon"><i data-lucide="badge-check"></i></span><span class="stat-label">Likely genuine</span><strong>{{ stats.genuine }}</strong><small>Still verify before applying</small></article>
+        <article class="stat-card stat-risk"><span class="stat-icon"><i data-lucide="gauge"></i></span><span class="stat-label">Average risk indicator</span><strong>{{ stats.average_risk }}<small class="stat-percent">%</small></strong><small>Across analyzed postings</small></article>
+    </div>
+    <div class="section-heading"><div><div class="section-kicker">LATEST ACTIVITY</div><h2>Recent predictions</h2></div><a class="text-link" href="{{ url_for('history') }}">View full history <i data-lucide="arrow-right"></i></a></div>
+    <div class="table-wrap">
+        {% if recent %}
+        <table>
+            <thead><tr><th>Job description</th><th>Result</th><th>Risk indicator</th><th>Date</th></tr></thead>
+            <tbody>
+            {% for item in recent %}
+            <tr>
+                <td class="job-cell">{{ item.job_description[:100] }}{% if item.job_description|length > 100 %}…{% endif %}</td>
+                <td><span class="result-pill {% if item.prediction == 'Potentially Fake Job' %}pill-fake{% else %}pill-genuine{% endif %}">{{ item.prediction }}</span></td>
+                <td><span class="risk-value {% if item.risk_score >= 60 %}risk-high{% elif item.risk_score >= 35 %}risk-mid{% else %}risk-low{% endif %}">{{ item.risk_score }}%</span></td>
+                <td>{{ item.created_at }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state"><span class="empty-icon"><i data-lucide="scan-search"></i></span><h3>Your first check starts here.</h3><p>Analyze a job description and the result will appear in this space.</p><a class="button button-dark" href="{{ url_for('analyze') }}">Analyze a job <i data-lucide="arrow-right"></i></a></div>
+        {% endif %}
+    </div>
+    <div class="quick-links">
+        <a href="{{ url_for('history') }}"><i data-lucide="history"></i><span><strong>Prediction history</strong><small>Review your past checks</small></span><i data-lucide="arrow-up-right"></i></a>
+        <a href="{{ url_for('profile') }}"><i data-lucide="circle-user-round"></i><span><strong>Your profile</strong><small>Account details and activity</small></span><i data-lucide="arrow-up-right"></i></a>
+    </div>
+</section>
+{% endblock %}

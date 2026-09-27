@@ -1,0 +1,6 @@
+﻿__pycache__/
+*.pyc
+fake_job_detector.db
+.env
+.venv/
+venv/
